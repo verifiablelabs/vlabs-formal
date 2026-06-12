@@ -1,0 +1,10 @@
+# Python bytecode + tool caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.hypothesis/
+# build artifacts
+dist/
+build/
+*.egg-info/
