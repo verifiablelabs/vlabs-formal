@@ -5,7 +5,7 @@ property-test mirror.
 
 Selected mathematical properties behind the contamination-resistant promotion gate are machine-verified in Lean 4. The implementation is property-tested against the formal specification.
 
-**Status: pointer repository.** The development is open source today in
+**Status: initial code import (mirror).** The development is open source today in
 [verifiable-labs-envs](https://github.com/verifiablelabs/verifiable-labs-envs):
 
 | Component | Current location |

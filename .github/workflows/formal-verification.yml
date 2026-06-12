@@ -1,0 +1,72 @@
+# Phase FV — verifies the machine-verified Lean 4 proofs in `formal/`.
+#
+# This workflow is intentionally isolated from the main Python CI (`ci.yml`):
+#   - Path-filtered to `formal/**` + this file, so Python-only PRs do not pay
+#     Lean-build time.
+#   - Mathlib oleans are pulled from the official cache via
+#     `leanprover/lean-action@v1`, which reads `formal/lean-toolchain`
+#     automatically and pins the toolchain.
+#   - The build is sandboxed inside `formal/` (the Python repo never sees
+#     elan/lake).
+#
+# Failure conditions: lake build error, or any `sorry` introduced into a
+# proof file. The Aristotle export is sorry-free; this CI keeps it that way.
+
+name: formal-verification
+
+on:
+  # Only `main` on push; PRs are covered separately. Including `phase-fv`
+  # (or any feature branch) here would run the ~15-minute Lean job twice
+  # per commit during the open PR window — once for the branch push and
+  # once for the pull_request event. main + pull_request covers both
+  # pre-merge and post-merge verification.
+  push:
+    branches: [main]
+    paths:
+      - 'formal/**'
+      - '.github/workflows/formal-verification.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'formal/**'
+      - '.github/workflows/formal-verification.yml'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  lake-build:
+    name: lake build + sorry-check
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Sorry-check (before build — fails fast)
+        # `.lake/packages/` only exists post-`lake exe cache get`; not a
+        # concern here, but the exclude is kept symmetric with the
+        # post-build re-check below. Mathlib and Batteries vendor a few
+        # tactic-test files that legitimately mention `sorry`.
+        run: |
+          if grep -rn '\bsorry\b' formal/ --include='*.lean' --exclude-dir='.lake'; then
+            echo "::error::Found 'sorry' in formal/ (excluding .lake/). The Aristotle export must remain sorry-free."
+            exit 1
+          fi
+          echo "OK: no 'sorry' in formal/"
+
+      - name: Lake build (Lean 4 + Mathlib cache)
+        uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: formal
+          use-mathlib-cache: true
+          build-args: "--verbose"
+
+      - name: Re-verify sorry-free after build (compiled .olean reflects proof state)
+        run: |
+          if grep -rn '\bsorry\b' formal/ --include='*.lean' --exclude-dir='.lake'; then
+            echo "::error::Found 'sorry' in formal/ after build (excluding vendored .lake/)."
+            exit 1
+          fi
+          echo "OK: still no 'sorry' in formal/ after build"

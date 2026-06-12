@@ -1,0 +1,17 @@
+name: property-tests
+on:
+  push: { branches: [main] }
+  pull_request: { branches: [main] }
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install pytest hypothesis numpy ruff
+      - run: ruff check src tests
+      - run: pytest
+      - name: zero-sorry check
+        run: |
+          if grep -rn "sorry" formal/ --include="*.lean"; then exit 1; fi
