@@ -1,0 +1,9 @@
+# Lake build artefacts + downloaded Mathlib oleans. Idiomatic Lean 4
+# layout — see https://lean-lang.org/lean4/doc/setup.html. The CI
+# workflow `formal-verification.yml` regenerates this directory via
+# `leanprover/lean-action@v1` (Mathlib cache fetch + `lake build`).
+.lake/
+build/
+*.olean
+*.ilean
+*.trace
