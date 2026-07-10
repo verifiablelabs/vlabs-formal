@@ -31,8 +31,20 @@ class SplitPolicyError(ValueError):
     machine-verified contamination policy."""
 
 
+def _require_split(split: Split) -> None:
+    if type(split) is not Split:
+        raise TypeError("split must be a Split")
+
+
+def _require_bool(name: str, value: bool) -> None:
+    if type(value) is not bool:
+        raise TypeError(f"{name} must be a bool")
+
+
 def is_trainable(split: Split, train_allowed: bool) -> bool:
     """A split is trainable only if it is not a hidden eval AND the flag set."""
+    _require_split(split)
+    _require_bool("train_allowed", train_allowed)
     if split is Split.HIDDEN_EVAL:
         return False
     return train_allowed
@@ -50,6 +62,9 @@ def validate_split_policy(
 
     Raises :class:`SplitPolicyError` on any violation.
     """
+    _require_split(split)
+    _require_bool("train_allowed", train_allowed)
+    _require_bool("public_release_allowed", public_release_allowed)
     if split is Split.HIDDEN_EVAL and train_allowed:
         raise SplitPolicyError("hidden_eval cannot be trainable")
     if split is Split.HIDDEN_EVAL and public_release_allowed:

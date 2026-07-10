@@ -80,12 +80,13 @@ def generated_after_freeze_not_in_training(
     generated at or before the training cutoff, *then*
     ``generated_at > freeze_time`` together with
     ``training_cutoff ≤ freeze_time`` forces ``¬ in_training_data``. This helper
-    reflects that exactly:
+    does not receive that premise as evidence. It therefore treats explicit
+    membership as authoritative:
 
     * When the freeze hypotheses hold (``generated_at > freeze_time`` and
-      ``training_cutoff ≤ freeze_time``), the scenario is clean — the theorem
-      guarantees ``in_training_data`` is ``False`` under the membership
-      assumption, so this returns ``True``.
+      ``training_cutoff ≤ freeze_time``), ``in_training_data=True`` is a
+      contradiction in the caller's evidence. It must fail closed rather than
+      silently replacing the explicit fact with the timestamp inference.
     * Otherwise the conditional gives no guarantee, so cleanliness is reported
       directly as ``not in_training_data`` (the honest, caller-supplied fact).
 
@@ -99,14 +100,11 @@ def generated_after_freeze_not_in_training(
         ``True`` iff the scenario is clean (not in training data) for this
         checkpoint.
     """
-    freeze_hypotheses_hold = (
-        scenario.generated_at > model.freeze_time
-        and model.training_cutoff <= model.freeze_time
-    )
-    if freeze_hypotheses_hold:
-        # Lean ``generated_after_freeze_not_in_training``: under the membership
-        # assumption this scenario is provably not in training data.
-        return True
+    if type(in_training_data) is not bool:
+        raise TypeError("in_training_data must be a bool")
+    # Timestamp ordering is indirect evidence. It cannot override a direct
+    # positive membership assertion, even when that assertion contradicts the
+    # premise needed by the corresponding Lean theorem.
     return not in_training_data
 
 

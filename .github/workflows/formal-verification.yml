@@ -4,7 +4,7 @@
 #   - Path-filtered to `formal/**` + this file, so Python-only PRs do not pay
 #     Lean-build time.
 #   - Mathlib oleans are pulled from the official cache via
-#     `leanprover/lean-action@v1`, which reads `formal/lean-toolchain`
+#     `leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1.5.0`, which reads `formal/lean-toolchain`
 #     automatically and pins the toolchain.
 #   - The build is sandboxed inside `formal/` (the Python repo never sees
 #     elan/lake).
@@ -42,7 +42,8 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with: { persist-credentials: false }
 
       - name: Sorry-check (before build — fails fast)
         # `.lake/packages/` only exists post-`lake exe cache get`; not a
@@ -50,14 +51,14 @@ jobs:
         # post-build re-check below. Mathlib and Batteries vendor a few
         # tactic-test files that legitimately mention `sorry`.
         run: |
-          if grep -rn '\bsorry\b' formal/ --include='*.lean' --exclude-dir='.lake'; then
-            echo "::error::Found 'sorry' in formal/ (excluding .lake/). The Aristotle export must remain sorry-free."
+          if grep -rnE '\b(sorry|sorryAx|axiom)\b' formal/VerifiableLabsFormal --include='*.lean'; then
+            echo "::error::Found a local sorry/sorryAx/axiom declaration. Proof sources must remain assumption-free beyond imported standard axioms."
             exit 1
           fi
-          echo "OK: no 'sorry' in formal/"
+          echo "OK: no local sorry/sorryAx/axiom declarations"
 
       - name: Lake build (Lean 4 + Mathlib cache)
-        uses: leanprover/lean-action@v1
+        uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1.5.0
         with:
           lake-package-directory: formal
           use-mathlib-cache: true
@@ -65,8 +66,8 @@ jobs:
 
       - name: Re-verify sorry-free after build (compiled .olean reflects proof state)
         run: |
-          if grep -rn '\bsorry\b' formal/ --include='*.lean' --exclude-dir='.lake'; then
-            echo "::error::Found 'sorry' in formal/ after build (excluding vendored .lake/)."
+          if grep -rnE '\b(sorry|sorryAx|axiom)\b' formal/VerifiableLabsFormal --include='*.lean'; then
+            echo "::error::Found a local sorry/sorryAx/axiom declaration after build."
             exit 1
           fi
-          echo "OK: still no 'sorry' in formal/ after build"
+          echo "OK: still no local sorry/sorryAx/axiom declarations"

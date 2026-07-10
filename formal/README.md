@@ -2,7 +2,8 @@
 
 This directory contains a standalone Lake project with the formal proofs behind Verifiable Labs's
 reward-calibration stack. **The mathematics here is machine-verified.** The Python implementation in
-`src/verifiable_labs_envs/formal_spec/` is property-tested against this specification — it is itself
+`src/verifiable_labs_envs/formal_spec/` is a hand-maintained mirror with property tests derived from
+selected definitions. It is **not** mechanically linked to the Lean declarations and is itself
 **not** formally verified. The honest claim is described in the project root `README.md` under
 "Formally verified guarantees".
 
@@ -54,8 +55,12 @@ identifiers used in proof scripts; a single rename inside `Mathlib.Probability` 
 ## Local verification
 
 ```bash
-# One-time: install elan (Lean version manager)
-curl -sSf https://elan.lean-lang.org/elan-init.sh | sh -s -- -y --default-toolchain none
+# One-time: fetch elan without executing network content as a pipeline.
+curl --proto '=https' --tlsv1.2 --fail --show-error --location \
+  --output /tmp/elan-init.sh https://elan.lean-lang.org/elan-init.sh
+# Review the installer and verify it against the official elan release/checksum,
+# then run the reviewed local file. Prefer a trusted OS package when available.
+sh /tmp/elan-init.sh -y --default-toolchain none
 source ~/.elan/env
 
 # Build (first run downloads ~1 GB of Mathlib oleans via the official cache)
@@ -80,8 +85,8 @@ EOF
 |   |   |
 |---|---|
 | ✅ Is | A machine-verified mathematical specification of the public guarantees Verifiable Labs claims (calibrated-reward bounds, conformal coverage, gate monotonicity, etc.). |
-| ✅ Is | The source of truth that the Python module `src/verifiable_labs_envs/formal_spec/` mirrors and property-tests against. |
-| ❌ Isn't | A proof of correctness of the Python code or the hosted API. The implementation is property-tested for parity with this spec; the implementation itself is not formally verified. |
+| ✅ Is | The mathematical source from which selected Python property tests are manually derived. |
+| ❌ Isn't | A proof of correctness of the Python code or hosted API, or a mechanized parity check between Lean and Python. |
 | ❌ Isn't | A licence to write the phrases *"formally verified code"*, *"formally verified system"*, or *"formally verified API"* in any other documentation. Never make those claims. The only approved wording is in the project `README.md`. |
 
 ## Contamination-resistant clean-gate track
@@ -99,11 +104,11 @@ files are **`sorry`-free** and depend only on the three standard axioms
 ### Allowed public claim (the only approved wording for this track)
 
 > "Selected mathematical properties behind Verifiable Labs' contamination-resistant
-> promotion gate are machine-verified in Lean 4. The implementation is
-> property-tested against the formal specification."
+> promotion gate are machine-verified in Lean 4. A hand-maintained Python mirror
+> has property tests derived from selected definitions; no mechanized
+> code-to-proof parity is claimed."
 
-Equivalently, throughout the SDK: *machine-verified theorems in Lean 4;
-implementation property-tested against the formal specification.*
+Use that scope verbatim throughout the SDK.
 
 ### Forbidden claims (do NOT use)
 
@@ -172,7 +177,8 @@ checkpoint — they reduce, but do not eliminate, leakage.
 The Python mirror of this track lives in
 `src/verifiable_labs_envs/formal_spec/` (modules `contamination_risk`,
 `clean_vgs`, `generalization_gap`, `contamination_splits`,
-`generated_after_freeze`, `clean_promotion_gate`, `clean_pipeline`) and is
-property-tested against these theorems in `tests/formal_spec/`. The
+`generated_after_freeze`, `clean_promotion_gate`, `clean_pipeline`). Tests in
+`tests/formal_spec/` are hand-maintained checks derived from selected definitions;
+they do not execute Lean or prove implementation parity. The
 `vlabs-prm-eval clean-gate` CLI command consumes eval cards through the same
 predicate.

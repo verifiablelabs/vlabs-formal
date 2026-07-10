@@ -3,7 +3,7 @@
 Ships only :mod:`.splits` — the contamination split taxonomy + policy that
 ``formal_spec.contamination_splits`` re-exports. The canonical, full
 ``schemas`` package (contract, results, assurance card) lives in the public
-SDK (``vlabs-sdk``) until the split flips.
+SDK (``vlabs-sdk``).
 """
 
 from __future__ import annotations

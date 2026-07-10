@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from hypothesis import given
 from hypothesis import strategies as st
+import pytest
 
 from verifiable_labs_envs.formal_spec.generated_after_freeze import (
     EvalScenario,
@@ -43,11 +44,25 @@ def test_generated_after_freeze_is_clean_under_explicit_cutoff(
         assert in_training is False
 
 
-# --- B.1 explicit happy path: clearly post-freeze with cutoff at freeze ---
-def test_post_freeze_scenario_clean_explicit():
+# --- B.1 explicit membership is authoritative even when timestamps conflict ---
+def test_post_freeze_scenario_is_not_clean_when_explicitly_in_training():
     model = Model(training_cutoff=100.0, freeze_time=100.0)
     scenario = EvalScenario(generated_at=150.0)
-    assert generated_after_freeze_not_in_training(model, scenario, True) is True
+    assert generated_after_freeze_not_in_training(model, scenario, True) is False
+
+
+def test_post_freeze_scenario_is_clean_when_explicitly_not_in_training():
+    model = Model(training_cutoff=100.0, freeze_time=100.0)
+    scenario = EvalScenario(generated_at=150.0)
+    assert generated_after_freeze_not_in_training(model, scenario, False) is True
+
+
+@pytest.mark.parametrize("value", [0, 1, "false", None])
+def test_training_membership_requires_an_exact_boolean(value):
+    model = Model(training_cutoff=100.0, freeze_time=100.0)
+    scenario = EvalScenario(generated_at=150.0)
+    with pytest.raises(TypeError, match="in_training_data must be a bool"):
+        generated_after_freeze_not_in_training(model, scenario, value)
 
 
 # --- B.2 post_freeze_hidden_eval_clean_for_model: outside the hypotheses the
