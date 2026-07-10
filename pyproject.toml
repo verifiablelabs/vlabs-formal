@@ -1,11 +1,47 @@
+[build-system]
+requires = ["hatchling==1.27.0"]
+build-backend = "hatchling.build"
+
 [project]
 name = "vlabs-formal"
 version = "0.0.1"
 description = "Lean 4 formal track for the contamination-resistant promotion gate + property-tested Python mirror."
+readme = "README.md"
 requires-python = ">=3.11"
+license = "Apache-2.0"
+authors = [{ name = "Verifiable Labs" }]
+
+[project.urls]
+Repository = "https://github.com/verifiablelabs/vlabs-formal"
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "hypothesis>=6.100", "numpy>=1.26", "ruff>=0.6"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/vlabs_formal"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"src/verifiable_labs_envs/formal_spec" = "vlabs_formal/formal_spec"
+"src/verifiable_labs_envs/schemas" = "vlabs_formal/schemas"
+"formal/VerifiableLabsFormal" = "vlabs_formal/lean/VerifiableLabsFormal"
+"formal/lakefile.toml" = "vlabs_formal/lean/lakefile.toml"
+"formal/lake-manifest.json" = "vlabs_formal/lean/lake-manifest.json"
+"formal/lean-toolchain" = "vlabs_formal/lean/lean-toolchain"
+"formal/README.md" = "vlabs_formal/lean/README.md"
+"formal/ARISTOTLE_SUMMARY.md" = "vlabs_formal/lean/ARISTOTLE_SUMMARY.md"
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "src",
+  "formal",
+  "tests",
+  "scripts",
+  "conftest.py",
+  "README.md",
+  "LICENSE",
+  "PROVENANCE.md",
+  "pyproject.toml",
+]
 
 [tool.pytest.ini_options]
 addopts = "-q --strict-markers --import-mode=importlib"

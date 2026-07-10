@@ -3,7 +3,7 @@
 Module **A** of the contamination-resistant evaluation track. The split
 taxonomy (``Split``) and the runtime policy (``validate_split_policy``,
 ``is_trainable``) already ship in the public SDK at
-``verifiable_labs_envs.schemas.splits``. This formal_spec module re-exposes
+the adjacent ``schemas.splits`` mirror. This formal_spec module re-exposes
 them next to the other property-tested mirrors so the Lean cross-reference is
 discoverable from one place — it does **not** duplicate the logic.
 
@@ -18,7 +18,7 @@ against them. The relevant theorems are:
 
 from __future__ import annotations
 
-from verifiable_labs_envs.schemas.splits import (
+from ..schemas.splits import (
     Split,
     SplitPolicyError,
     is_trainable,
