@@ -8,9 +8,9 @@ build==1.5.1 \
     --hash=sha256:94e17f1db803ab22f46049376c44c8437c52090f0dfdf1adc43df56542d644fb \
     --hash=sha256:f1a58fe2e5af5b0238a07b9e70207492c79ddebbdb1ad954fc86d62a56be3e0d
     # via -r vlabs-formal/.github/requirements-ci.in
-hatchling==1.27.0 \
-    --hash=sha256:971c296d9819abb3811112fc52c7a9751c8d381898f36533bb16f9791e941fd6 \
-    --hash=sha256:d3a2f3567c4f926ea39849cdf924c7e99e6686c9c8e288ae1037c8fa2a5d937b
+hatchling==1.31.0 \
+    --hash=sha256:6b48ad4068a482ed7239b3a8215bc55b47aad3345d58dfc94e553c5d2d46211b \
+    --hash=sha256:aac80bec8b6fe35e8480f1c335be8910fa210a0e6f735a139be205dadcacb544
     # via -r vlabs-formal/.github/requirements-ci.in
 hypothesis==6.156.4 \
     --hash=sha256:0725c7e2c3bd863e75aae8d5be1f650abc9a3774200055461e1142625af9419c \
